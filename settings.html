@@ -1,0 +1,1247 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; img-src 'self' data:;"
+    />
+    <title>WORK OR RUN</title>
+    <style>
+      :root,
+      :root[data-theme='light'] {
+        color-scheme: light;
+        --bg: #f2f2f5;
+        --card: #ffffff;
+        --text: #1d1d1f;
+        --muted: #6e6e73;
+        --line: #e3e3e8;
+        --field: #ffffff;
+        --accent: #f5a65b;
+        --accent-strong: #d98a3e;
+        --ok: #1f8a4c;
+        --error: #c0392b;
+        --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        --focus: rgba(245, 166, 91, 0.35);
+        --hover: #f7f7f9;
+        --header-line: rgba(0, 0, 0, 0.06);
+      }
+
+      /* 显式主题：由主进程解析后通过 data-theme 推送，不依赖 prefers-color-scheme。 */
+      :root[data-theme='dark'] {
+        color-scheme: dark;
+        --bg: #17171a;
+        --card: #232327;
+        --text: #f5f5f7;
+        --muted: #9b9ba1;
+        --line: #35353b;
+        --field: #2c2c31;
+        --accent: #f5a65b;
+        --accent-strong: #ffc287;
+        --ok: #4cd07d;
+        --error: #ff6b5e;
+        --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        --focus: rgba(245, 166, 91, 0.4);
+        --hover: #2a2a30;
+        --header-line: rgba(255, 255, 255, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC',
+          'Hiragino Sans GB', 'Helvetica Neue', sans-serif;
+        font-size: 13px;
+        line-height: 1.45;
+        -webkit-user-select: none;
+        user-select: none;
+        overflow: hidden;
+      }
+
+      .app {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .app-header {
+        flex: none;
+        padding: 14px 18px 0;
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--accent) 22%, var(--card)) 0%,
+          var(--card) 96%
+        );
+        border-bottom: 1px solid var(--header-line);
+      }
+
+      .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 9px;
+        flex-wrap: wrap;
+      }
+
+      h1 {
+        font-size: 17px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+
+      .brand-en {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 1.4px;
+        color: var(--accent-strong);
+        border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+        border-radius: 999px;
+        padding: 1px 7px;
+      }
+
+      .sub {
+        margin: 2px 0 0;
+        width: 100%;
+        color: var(--muted);
+        font-size: 11.5px;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 2px;
+        margin-top: 10px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab {
+        flex: none;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-size: 12.5px;
+        padding: 7px 12px 8px;
+        border-radius: 8px 8px 0 0;
+        cursor: default;
+        border-bottom: 2px solid transparent;
+        transition: color 0.15s ease, background 0.15s ease;
+      }
+
+      .tab:hover {
+        color: var(--text);
+        background: color-mix(in srgb, var(--accent) 10%, transparent);
+      }
+
+      .tab[aria-selected='true'] {
+        color: var(--accent-strong);
+        font-weight: 600;
+        border-bottom-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 14%, transparent);
+      }
+
+      .tab:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px var(--focus);
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .panels {
+        flex: 1;
+        min-height: 0;
+        position: relative;
+      }
+
+      .panel {
+        height: 100%;
+        overflow-y: auto;
+        padding: 12px 18px 4px;
+        overscroll-behavior: contain;
+      }
+
+      .panel::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .panel::-webkit-scrollbar-thumb {
+        background: var(--line);
+        border-radius: 4px;
+      }
+
+      .section {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px 14px 10px;
+        margin-bottom: 10px;
+        box-shadow: var(--shadow);
+      }
+
+      .section:last-child {
+        margin-bottom: 2px;
+      }
+
+      h2 {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: 0.4px;
+        margin: 0;
+        padding: 2px 0;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .row:last-child {
+        border-bottom: none;
+      }
+
+      .row label {
+        font-size: 13px;
+        color: var(--text);
+      }
+
+      .row .grow {
+        flex: 1;
+        min-width: 0;
+      }
+
+      input[type='time'],
+      input[type='number'],
+      input[type='text'],
+      select {
+        padding: 5px 8px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: var(--field);
+        color: var(--text);
+        font: inherit;
+        font-variant-numeric: tabular-nums;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      input[type='time'] {
+        width: 132px;
+      }
+
+      input[type='number'] {
+        width: 92px;
+      }
+
+      input[type='text'] {
+        width: 220px;
+      }
+
+      select {
+        width: 160px;
+      }
+
+      input[type='time']:focus,
+      input[type='number']:focus,
+      input[type='text']:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--focus);
+      }
+
+      input:disabled,
+      select:disabled {
+        opacity: 0.5;
+      }
+
+      input[type='checkbox'],
+      input[type='radio'] {
+        width: 15px;
+        height: 15px;
+        margin: 0;
+        accent-color: var(--accent);
+      }
+
+      .check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        cursor: default;
+      }
+
+      .custom {
+        padding: 8px 0 2px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .plan-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 2px 0 6px;
+      }
+
+      .plan-title {
+        flex: 1;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.2px;
+      }
+
+      .btn.plan-nav {
+        min-width: 30px;
+        width: 30px;
+        padding: 2px 0;
+        font-size: 16px;
+        line-height: 1.2;
+      }
+
+      .btn.plan-today {
+        min-width: 0;
+        padding: 4px 10px;
+        font-size: 11.5px;
+      }
+
+      .plan-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 0;
+        border-bottom: 1px dashed var(--line);
+      }
+
+      .plan-row:last-child {
+        border-bottom: none;
+      }
+
+      .plan-label {
+        flex: 1;
+        min-width: 0;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .plan-current {
+        flex: none;
+        font-size: 10.5px;
+        color: var(--accent-strong);
+        border: 1px solid var(--accent);
+        border-radius: 999px;
+        padding: 0 5px;
+        line-height: 1.5;
+      }
+
+      .plan-current:empty {
+        display: none;
+      }
+
+      .plan-toggle {
+        flex: none;
+        min-width: 56px;
+        justify-content: flex-end;
+      }
+
+      .plan-toggle span {
+        font-size: 12px;
+        min-width: 26px;
+        text-align: right;
+      }
+
+      .custom-title {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 7px;
+      }
+
+      .days {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px 10px;
+      }
+
+      .days .check {
+        font-size: 12.5px;
+        padding: 3px 0;
+      }
+
+      .hint {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 11.5px;
+        line-height: 1.5;
+      }
+
+      .hint.inline {
+        margin: 0;
+      }
+
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 5px 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .meta .value {
+        color: var(--text);
+        text-align: right;
+        min-width: 0;
+        word-break: break-all;
+      }
+
+      /* 喝水提醒 */
+      .water-summary {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 0 2px;
+      }
+
+      .water-total {
+        font-size: 20px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.2px;
+      }
+
+      .water-total .unit {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+
+      .water-percent {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--accent-strong);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .progress {
+        height: 10px;
+        border-radius: 999px;
+        background: var(--line);
+        overflow: hidden;
+        margin: 7px 0 12px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+        background: var(--accent);
+        transition: width 0.2s ease, background 0.15s ease;
+      }
+
+      .water-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 2px 0 8px;
+      }
+
+      .water-actions .btn {
+        min-width: 0;
+        padding: 5px 11px;
+        font-size: 12px;
+      }
+
+      .water-custom {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+      }
+
+      .water-custom input[type='number'] {
+        width: 82px;
+      }
+
+      .water-list {
+        list-style: none;
+        margin: 4px 0 0;
+        padding: 0;
+        max-height: 150px;
+        overflow-y: auto;
+        border-top: 1px solid var(--line);
+      }
+
+      .water-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 5px 2px;
+        border-bottom: 1px dashed var(--line);
+        font-size: 12.5px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .water-row:last-child {
+        border-bottom: none;
+      }
+
+      .water-row .at {
+        color: var(--muted);
+      }
+
+      .water-row .ml {
+        font-weight: 600;
+      }
+
+      .water-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 6px;
+      }
+
+      .link-btn {
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-size: 11.5px;
+        padding: 2px 0;
+        cursor: default;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .link-btn:hover {
+        color: var(--text);
+      }
+
+      .link-btn:disabled {
+        opacity: 0.45;
+        text-decoration: none;
+      }
+
+      .link-btn.accent {
+        color: var(--accent-strong);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      /* 外观 */
+      .swatches {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        padding: 8px 0 10px;
+      }
+
+      .swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        border: 2px solid transparent;
+        background: var(--swatch);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+        padding: 0;
+        cursor: default;
+        outline: none;
+        transition: transform 0.1s ease, box-shadow 0.15s ease;
+      }
+
+      .swatch:hover {
+        transform: scale(1.06);
+      }
+
+      .swatch[aria-checked='true'] {
+        box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--swatch);
+      }
+
+      .swatch:focus-visible {
+        box-shadow: 0 0 0 3px var(--focus);
+      }
+
+      .accent-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 6px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      input[type='color'] {
+        width: 54px;
+        height: 28px;
+        padding: 2px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: var(--field);
+        cursor: default;
+      }
+
+      .theme-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px 16px;
+        padding: 7px 0 4px;
+      }
+
+      .theme-grid .check {
+        padding: 4px 0;
+        font-size: 12.5px;
+      }
+
+      /* 关于 / 更新 */
+      .update-block {
+        padding: 8px 0 2px;
+        border-top: 1px solid var(--line);
+      }
+
+      .update-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .update-result {
+        margin: 6px 0 0;
+        min-height: 18px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .update-result.ok {
+        color: var(--ok);
+      }
+
+      .update-result.update {
+        color: var(--accent-strong);
+        font-weight: 600;
+      }
+
+      .update-result.error {
+        color: var(--error);
+      }
+
+      .release-link {
+        margin-top: 4px;
+        display: inline-block;
+      }
+
+      .blurb {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      /* 底部固定栏 */
+      .message {
+        margin: 6px 18px 0;
+        min-height: 18px;
+        font-size: 12px;
+        color: var(--muted);
+        flex: none;
+      }
+
+      .message.ok {
+        color: var(--ok);
+      }
+
+      .message.error {
+        color: var(--error);
+      }
+
+      footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 10px 18px 12px;
+        margin-top: 6px;
+        border-top: 1px solid var(--line);
+        background: var(--card);
+        flex: none;
+      }
+
+      .btn {
+        min-width: 76px;
+        padding: 6px 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--card);
+        color: var(--text);
+        font: inherit;
+        font-size: 12.5px;
+        cursor: default;
+        transition: background 0.15s ease, transform 0.05s ease,
+          opacity 0.15s ease, border-color 0.15s ease;
+      }
+
+      .btn:hover {
+        background: var(--hover);
+      }
+
+      .btn:active {
+        transform: scale(0.98);
+      }
+
+      .btn.primary {
+        border-color: transparent;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+      }
+
+      .btn.primary:hover {
+        background: var(--accent-strong);
+      }
+
+      .btn:disabled {
+        opacity: 0.55;
+      }
+
+      .btn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px var(--focus);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="app-header">
+        <div class="brand">
+          <h1>下班倒计时</h1>
+          <span class="brand-en">WORK OR RUN</span>
+          <p class="sub">工作时间 · 喝水提醒 · 休息提醒 · 外观与更新</p>
+        </div>
+        <nav class="tabs" role="tablist" aria-label="设置分类">
+          <button
+            type="button"
+            class="tab"
+            id="tab-countdown"
+            data-tab="countdown"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panel-countdown"
+          >
+            倒计时
+          </button>
+          <button
+            type="button"
+            class="tab"
+            id="tab-water"
+            data-tab="water"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-water"
+            tabindex="-1"
+          >
+            喝水提醒
+          </button>
+          <button
+            type="button"
+            class="tab"
+            id="tab-rest"
+            data-tab="rest"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-rest"
+            tabindex="-1"
+          >
+            休息提醒
+          </button>
+          <button
+            type="button"
+            class="tab"
+            id="tab-settings"
+            data-tab="settings"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-settings"
+            tabindex="-1"
+          >
+            设置
+          </button>
+          <button
+            type="button"
+            class="tab"
+            id="tab-about"
+            data-tab="about"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-about"
+            tabindex="-1"
+          >
+            关于
+          </button>
+        </nav>
+      </header>
+
+      <form id="form" novalidate>
+        <div class="panels">
+          <!-- 倒计时 -->
+          <div
+            class="panel"
+            id="panel-countdown"
+            data-panel="countdown"
+            role="tabpanel"
+            aria-labelledby="tab-countdown"
+          >
+            <div class="section">
+              <h2>工作时间</h2>
+              <div class="row">
+                <label for="workStart">上班时间</label>
+                <input id="workStart" name="workStart" type="time" step="60" required />
+              </div>
+              <div class="row">
+                <label for="workEnd">下班时间</label>
+                <input id="workEnd" name="workEnd" type="time" step="60" required />
+              </div>
+              <p class="hint">仅支持同一天内的班次，下班时间需晚于上班时间。</p>
+            </div>
+
+            <div class="section">
+              <h2>休息日</h2>
+              <div class="row">
+                <label for="restMode">休息日模式</label>
+                <select id="restMode" name="restMode">
+                  <option value="double">双休（周六、周日）</option>
+                  <option value="single">单休（仅周日）</option>
+                  <option value="alternating">大小休（按周交替）</option>
+                  <option value="monthly">按月四周</option>
+                  <option value="custom">自定义</option>
+                </select>
+              </div>
+              <div class="row" id="alternatingRow" hidden>
+                <label for="alternatingDouble">本周为双休周</label>
+                <input id="alternatingDouble" name="alternatingDouble" type="checkbox" />
+              </div>
+              <div class="custom" id="monthlyRow" hidden>
+                <div class="plan-head">
+                  <button type="button" id="planPrev" class="btn plan-nav" aria-label="上一月">‹</button>
+                  <span class="plan-title" id="planTitle">-</span>
+                  <button type="button" id="planNext" class="btn plan-nav" aria-label="下一月">›</button>
+                  <button type="button" id="planToday" class="btn plan-today">回到本月</button>
+                </div>
+                <div id="planWeeks"></div>
+                <p class="hint" id="planLegend">双休＝周六、周日休息；单休＝仅周日休息；未配置的周按双休处理。</p>
+              </div>
+              <div class="custom" id="customRow" hidden>
+                <span class="custom-title">勾选为休息日（周一…周日）</span>
+                <div class="days" id="customDays">
+                  <label class="check"><input type="checkbox" name="customRestDay" value="1" /><span>周一</span></label>
+                  <label class="check"><input type="checkbox" name="customRestDay" value="2" /><span>周二</span></label>
+                  <label class="check"><input type="checkbox" name="customRestDay" value="3" /><span>周三</span></label>
+                  <label class="check"><input type="checkbox" name="customRestDay" value="4" /><span>周四</span></label>
+                  <label class="check"><input type="checkbox" name="customRestDay" value="5" /><span>周五</span></label>
+                  <label class="check"><input type="checkbox" name="customRestDay" value="6" /><span>周六</span></label>
+                  <label class="check"><input type="checkbox" name="customRestDay" value="0" /><span>周日</span></label>
+                </div>
+              </div>
+              <p class="hint" id="restHint">休息日不显示倒计时，也不会发送通知。</p>
+            </div>
+
+            <div class="section">
+              <h2>午休</h2>
+              <div class="row">
+                <label for="lunchEnabled">启用午休</label>
+                <input id="lunchEnabled" name="lunchEnabled" type="checkbox" />
+              </div>
+              <div class="row">
+                <label for="lunchStart">午休开始</label>
+                <input id="lunchStart" name="lunchStart" type="time" step="60" />
+              </div>
+              <div class="row">
+                <label for="lunchEnd">午休结束</label>
+                <input id="lunchEnd" name="lunchEnd" type="time" step="60" />
+              </div>
+              <p class="hint">午休期间菜单栏显示「午休中」；结束时间需晚于开始时间。</p>
+            </div>
+
+            <div class="section">
+              <h2>加班</h2>
+              <div class="row">
+                <label for="overtimeEnabled">开启加班计时</label>
+                <input id="overtimeEnabled" name="overtimeEnabled" type="checkbox" />
+              </div>
+              <div class="row">
+                <label for="overtimeStart">加班起算时间</label>
+                <input id="overtimeStart" name="overtimeStart" type="time" step="60" />
+              </div>
+              <p class="hint">工作日才计时；休息日不计入。</p>
+            </div>
+
+            <div class="section">
+              <h2>提醒</h2>
+              <div class="row">
+                <label for="notifyAtEnd">下班时通知</label>
+                <input id="notifyAtEnd" name="notifyAtEnd" type="checkbox" />
+              </div>
+              <div class="row">
+                <label for="notifyBeforeMinutes">提前 N 分钟提醒</label>
+                <input
+                  id="notifyBeforeMinutes"
+                  name="notifyBeforeMinutes"
+                  type="number"
+                  min="0"
+                  max="120"
+                  step="1"
+                  value="0"
+                />
+              </div>
+              <p class="hint">N 为 0–120 的整数，0 表示不提前提醒。仅在应用运行期间跨过阈值时提醒。</p>
+            </div>
+          </div>
+
+          <!-- 喝水提醒 -->
+          <div
+            class="panel"
+            id="panel-water"
+            data-panel="water"
+            role="tabpanel"
+            aria-labelledby="tab-water"
+            hidden
+          >
+            <div class="section">
+              <h2>喝水提醒</h2>
+              <div class="row">
+                <label for="waterEnabled">启用喝水提醒</label>
+                <input id="waterEnabled" name="waterEnabled" type="checkbox" />
+              </div>
+              <div class="row">
+                <label for="waterInterval">提醒间隔（分钟）</label>
+                <input
+                  id="waterInterval"
+                  name="waterInterval"
+                  type="number"
+                  min="1"
+                  max="600"
+                  step="1"
+                  value="45"
+                />
+              </div>
+              <div class="row">
+                <label for="waterGoal">每日目标（ml）</label>
+                <input
+                  id="waterGoal"
+                  name="waterGoal"
+                  type="number"
+                  min="100"
+                  max="10000"
+                  step="50"
+                  value="2000"
+                />
+              </div>
+              <div class="row">
+                <label for="waterCup">每次喝水量（ml）</label>
+                <input
+                  id="waterCup"
+                  name="waterCup"
+                  type="number"
+                  min="50"
+                  max="2000"
+                  step="10"
+                  value="250"
+                />
+              </div>
+              <div class="row">
+                <label for="waterWorkHoursOnly">仅工作时间提醒</label>
+                <input
+                  id="waterWorkHoursOnly"
+                  name="waterWorkHoursOnly"
+                  type="checkbox"
+                  checked
+                />
+              </div>
+              <p class="hint">
+                每隔 N 分钟弹出一条系统通知提醒喝水；仅在应用运行期间触发。勾选「仅工作时间提醒」时，
+                只在工作日且处于上班时间内的时段提醒。
+              </p>
+            </div>
+
+            <div class="section">
+              <h2>今日喝水</h2>
+              <div class="water-summary">
+                <div class="water-total">
+                  <span id="waterTotal">0</span>
+                  <span class="unit">/ <span id="waterGoalText">2000</span> ml</span>
+                </div>
+                <div class="water-percent" id="waterPercent">0%</div>
+              </div>
+              <div
+                class="progress"
+                id="waterProgress"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                aria-label="今日喝水进度"
+              >
+                <div class="progress-fill" id="waterProgressBar"></div>
+              </div>
+              <div class="water-actions">
+                <button type="button" id="waterAddCup" class="btn primary">+1 次（250ml）</button>
+                <button type="button" class="btn" data-water-ml="150">+150</button>
+                <button type="button" class="btn" data-water-ml="200">+200</button>
+                <button type="button" class="btn" data-water-ml="300">+300</button>
+                <span class="water-custom">
+                  <input
+                    id="waterCustomMl"
+                    type="number"
+                    min="1"
+                    max="2000"
+                    step="10"
+                    placeholder="自定义 ml"
+                    aria-label="自定义喝水量（ml）"
+                  />
+                  <button type="button" id="waterAddCustom" class="btn">记录</button>
+                </span>
+              </div>
+              <ul class="water-list" id="waterList" aria-label="今日喝水记录"></ul>
+              <div class="water-foot">
+                <span class="hint inline" id="waterEmpty">今天还没有记录</span>
+                <button type="button" class="link-btn" id="waterClear">清空今日记录</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 休息提醒 -->
+          <div
+            class="panel"
+            id="panel-rest"
+            data-panel="rest"
+            role="tabpanel"
+            aria-labelledby="tab-rest"
+            hidden
+          >
+            <div class="section">
+              <h2>休息提醒</h2>
+              <div class="row">
+                <label for="restEnabled">启用休息提醒</label>
+                <input id="restEnabled" name="restEnabled" type="checkbox" />
+              </div>
+              <div class="row">
+                <label for="restInterval">提醒间隔（分钟）</label>
+                <input
+                  id="restInterval"
+                  name="restInterval"
+                  type="number"
+                  min="1"
+                  max="600"
+                  step="1"
+                  value="45"
+                />
+              </div>
+              <div class="row">
+                <label for="restDuration">每次休息时间（分钟）</label>
+                <input
+                  id="restDuration"
+                  name="restDuration"
+                  type="number"
+                  min="1"
+                  max="120"
+                  step="1"
+                  value="5"
+                />
+              </div>
+              <div class="row">
+                <label for="restWorkHoursOnly">仅工作时间提醒</label>
+                <input
+                  id="restWorkHoursOnly"
+                  name="restWorkHoursOnly"
+                  type="checkbox"
+                  checked
+                />
+              </div>
+              <p class="hint">
+                每隔 N 分钟弹出「该休息一下了 · 起身活动 X 分钟」；仅在应用运行期间触发。
+                勾选「仅工作时间提醒」时，只在工作日且处于上班时间内的时段提醒。
+              </p>
+            </div>
+          </div>
+
+          <!-- 设置 -->
+          <div
+            class="panel"
+            id="panel-settings"
+            data-panel="settings"
+            role="tabpanel"
+            aria-labelledby="tab-settings"
+            hidden
+          >
+            <div class="section">
+              <h2>高亮颜色</h2>
+              <div class="swatches" id="accentSwatches" role="radiogroup" aria-label="预设高亮颜色">
+                <button type="button" class="swatch" data-accent="#F5A65B" style="--swatch: #F5A65B" aria-label="橙色 #F5A65B" aria-checked="false"></button>
+                <button type="button" class="swatch" data-accent="#8FD19E" style="--swatch: #8FD19E" aria-label="绿色 #8FD19E" aria-checked="false"></button>
+                <button type="button" class="swatch" data-accent="#4A90D9" style="--swatch: #4A90D9" aria-label="蓝色 #4A90D9" aria-checked="false"></button>
+                <button type="button" class="swatch" data-accent="#8E7CC3" style="--swatch: #8E7CC3" aria-label="紫色 #8E7CC3" aria-checked="false"></button>
+                <button type="button" class="swatch" data-accent="#E48FB3" style="--swatch: #E48FB3" aria-label="粉色 #E48FB3" aria-checked="false"></button>
+                <button type="button" class="swatch" data-accent="#E5533D" style="--swatch: #E5533D" aria-label="红色 #E5533D" aria-checked="false"></button>
+              </div>
+              <div class="accent-row">
+                <label for="accentCustom">自定义颜色</label>
+                <input id="accentCustom" type="color" value="#F5A65B" />
+              </div>
+              <p class="hint">高亮颜色会立即预览，保存后应用到保存按钮、勾选框、当前标签页、进度条与聚焦框。</p>
+            </div>
+
+            <div class="section">
+              <h2>主题模式</h2>
+              <div class="theme-grid" role="radiogroup" aria-label="主题模式">
+                <label class="check"><input type="radio" name="themeMode" value="system" /><span>跟随系统</span></label>
+                <label class="check"><input type="radio" name="themeMode" value="sun" /><span>跟随日出日落</span></label>
+                <label class="check"><input type="radio" name="themeMode" value="light" /><span>浅色</span></label>
+                <label class="check"><input type="radio" name="themeMode" value="dark" /><span>深色</span></label>
+              </div>
+              <div class="row" id="sunriseRow" hidden>
+                <label for="sunrise">日出时间</label>
+                <input id="sunrise" name="sunrise" type="time" step="60" />
+              </div>
+              <div class="row" id="sunsetRow" hidden>
+                <label for="sunset">日落时间</label>
+                <input id="sunset" name="sunset" type="time" step="60" />
+              </div>
+              <p class="hint">
+                「跟随日出日落」按这里的日出/日落时间在浅色与深色之间切换；这些时间是可手动配置的
+                近似值，并非真实天文计算。其它模式立即应用。
+              </p>
+            </div>
+
+            <div class="section">
+              <h2>更新源</h2>
+              <div class="row">
+                <label for="updateRepo">GitHub 仓库</label>
+                <input
+                  id="updateRepo"
+                  name="updateRepo"
+                  type="text"
+                  spellcheck="false"
+                  autocomplete="off"
+                  placeholder="owner/repo"
+                />
+              </div>
+              <p class="hint">
+                格式为 owner/repo（当前默认 BALLBALLUUUUU/WORK-OR-RUN），
+                否则「检测更新」会访问不到 Release。
+              </p>
+            </div>
+
+            <div class="section">
+              <h2>关于</h2>
+              <div class="meta">
+                <span>作者</span>
+                <span class="value">黄溢球</span>
+              </div>
+              <div class="meta">
+                <span>当前版本</span>
+                <span class="value" id="settingsVersion">v1.4.0</span>
+              </div>
+              <div class="update-block">
+                <div class="update-actions">
+                  <button type="button" id="checkUpdateSettings" class="btn">检测更新</button>
+                </div>
+                <p id="updateResultSettings" class="update-result" role="status" aria-live="polite"></p>
+                <button type="button" id="releaseLinkSettings" class="link-btn accent release-link" hidden>
+                  前往 GitHub 发布页
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 关于 -->
+          <div
+            class="panel"
+            id="panel-about"
+            data-panel="about"
+            role="tabpanel"
+            aria-labelledby="tab-about"
+            hidden
+          >
+            <div class="section">
+              <h2>关于</h2>
+              <div class="meta">
+                <span>作者</span>
+                <span class="value">黄溢球</span>
+              </div>
+              <div class="meta">
+                <span>当前版本</span>
+                <span class="value" id="metaVersion">v1.4.0</span>
+              </div>
+              <div class="meta">
+                <span>数据目录</span>
+                <span class="value" id="metaUserData">-</span>
+              </div>
+              <p class="blurb">
+                下班倒计时（WORK OR RUN）是一个常驻 macOS 菜单栏的小工具：显示距下班时间，
+                支持双休 / 单休 / 大小休 / 按月四周 / 自定义休息日、午休状态、加班计时、
+                喝水与休息提醒。纯本地运行；只有「检测更新」会访问 GitHub API。
+              </p>
+              <div class="update-block">
+                <div class="update-actions">
+                  <button type="button" id="checkUpdateAbout" class="btn">检测更新</button>
+                </div>
+                <p id="updateResultAbout" class="update-result" role="status" aria-live="polite"></p>
+                <button type="button" id="releaseLinkAbout" class="link-btn accent release-link" hidden>
+                  前往 GitHub 发布页
+                </button>
+              </div>
+              <p class="hint">
+                「开机启动」请在菜单栏菜单中勾选，本窗口不修改系统登录项。更新检查使用
+                GitHub Releases 的最新 tag 与当前版本比较。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p id="message" class="message" role="status" aria-live="polite"></p>
+
+        <footer>
+          <button type="button" id="cancel" class="btn">取消</button>
+          <button type="submit" id="save" class="btn primary">保存</button>
+        </footer>
+      </form>
+    </main>
+
+    <script src="settings.js" defer></script>
+  </body>
+</html>

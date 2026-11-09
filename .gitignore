@@ -1,0 +1,14 @@
+# 构建产物与大文件：DMG 通过 GitHub Releases 分发，不进仓库
+OffWorkCountdown.app/
+dist/*.dmg
+dist/*.dmg.sha256
+
+# 系统 / 编辑器 / 缓存
+.DS_Store
+__pycache__/
+*.pyc
+*.log
+
+# 临时文件
+*.tmp
+*.bak

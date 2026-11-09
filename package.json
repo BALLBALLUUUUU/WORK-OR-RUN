@@ -1,0 +1,8 @@
+{
+  "name": "offworkcountdown",
+  "version": "1.4.0",
+  "private": true,
+  "description": "macOS 菜单栏下班倒计时",
+  "main": "main.js",
+  "license": "MIT"
+}
